@@ -1,3 +1,6 @@
+main:
+	@docker-compose up
+
 serve: install.devdeps
 	@air -c .air.toml
 
