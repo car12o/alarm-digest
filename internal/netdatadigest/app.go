@@ -1,7 +1,7 @@
 package netdatadigest
 
 import (
-	"github.com/car12o/netdata-digest/internal/alarms"
+	"github.com/car12o/netdata-digest/internal/alarm"
 	"github.com/car12o/netdata-digest/internal/broker"
 	"github.com/car12o/netdata-digest/internal/messenger"
 	"github.com/car12o/netdata-digest/internal/storage"
@@ -33,7 +33,7 @@ func NewApp(redisAddr string, natsUrl string) (*App, error) {
 	}
 	log.Info("Successfully connected to NATS server")
 
-	if err := alarms.NewService(
+	if err := alarm.NewService(
 		// "",
 		messenger.NewService(nc),
 	).SubscribeTopics(); err != nil {

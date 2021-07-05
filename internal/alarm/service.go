@@ -1,4 +1,4 @@
-package alarms
+package alarm
 
 import (
 	"fmt"
