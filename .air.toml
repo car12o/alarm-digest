@@ -6,6 +6,7 @@ tmp_dir = ".tmp"
     tmp/netdata-digest \
     ${HOST+-host "$HOST"} \
     ${PORT+-port "$PORT"} \
+    ${REDIS_ADDR+-redis-addr "$REDIS_ADDR"} \
     ${NATS_URL+-nats-url "$NATS_URL"} \
     """
   cmd = "go build -o .tmp/netdata-digest ./cmd/netdata-digest"

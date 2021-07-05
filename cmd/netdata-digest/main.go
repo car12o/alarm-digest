@@ -10,9 +10,10 @@ import (
 )
 
 type config struct {
-	host    string
-	port    uint64
-	natsUrl string
+	host      string
+	port      uint64
+	redisAddr string
+	natsUrl   string
 }
 
 var cfg config
@@ -20,12 +21,13 @@ var cfg config
 func init() {
 	flag.StringVar(&cfg.host, "host", "0.0.0.0", "Server host")
 	flag.Uint64Var(&cfg.port, "port", 3000, "Server port")
-	flag.StringVar(&cfg.natsUrl, "nats-url", nats.DefaultURL, "Nets URL")
+	flag.StringVar(&cfg.redisAddr, "redis-addr", "0.0.0.0:6379", "Redis address")
+	flag.StringVar(&cfg.natsUrl, "nats-url", nats.DefaultURL, "Nats URL")
 	flag.Parse()
 }
 
 func main() {
-	app, err := netdatadigest.NewApp(cfg.natsUrl)
+	app, err := netdatadigest.NewApp(cfg.redisAddr, cfg.natsUrl)
 	if err != nil {
 		panic(err)
 	}

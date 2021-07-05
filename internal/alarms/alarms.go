@@ -12,3 +12,9 @@ type Alarm struct {
 	Status    string
 	ChangedAt time.Time
 }
+
+type Repository interface {
+	Store(alarm Alarm) error
+	GetByID(userID string, ID string) (Alarm, error)
+	GetByUserID(userID string) ([]Alarm, error)
+}

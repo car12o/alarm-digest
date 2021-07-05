@@ -1,4 +1,4 @@
-package messagebroker
+package messenger
 
 import "time"
 
@@ -6,7 +6,6 @@ type Service interface {
 	TopicAlarmStatusChanged() TopicAlarmStatusChanged
 	TopicSendAlarmDigest() TopicSendAlarmDigest
 	TopicAlarmDigest() (TopicAlarmDigest, error)
-	Close()
 }
 
 type TopicAlarmStatusChanged interface {

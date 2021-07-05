@@ -1,44 +1,15 @@
-package messagebroker
+package messenger
 
 import (
-	"time"
-
-	"github.com/car12o/netdata-digest/pkg/logger"
 	"github.com/nats-io/nats.go"
-	"github.com/pkg/errors"
 )
 
 type service struct {
 	ec *nats.EncodedConn
 }
 
-func NewService(url string, log logger.Service) (Service, error) {
-	nc, err := nats.Connect(
-		url,
-		nats.RetryOnFailedConnect(true),
-		nats.MaxReconnects(15),
-		nats.ReconnectWait(time.Second*2),
-		nats.DisconnectErrHandler(func(_ *nats.Conn, err error) {
-			log.Error(errors.Wrap(err, "Disconnected from NATS server"))
-		}),
-		nats.ReconnectHandler(func(_ *nats.Conn) {
-			log.Info("Successfully reconnected to NATS server")
-		}),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := nc.Flush(); err != nil {
-		return nil, err
-	}
-
-	ec, err := nats.NewEncodedConn(nc, nats.JSON_ENCODER)
-	if err != nil {
-		return nil, err
-	}
-
-	return &service{ec}, nil
+func NewService(ec *nats.EncodedConn) Service {
+	return &service{ec}
 }
 
 type topicAlarmStatusChanged struct {
@@ -147,8 +118,4 @@ func (s *service) TopicAlarmDigest() (TopicAlarmDigest, error) {
 
 func (t *topicAlarmDigest) Publish(msg AlarmDigest) {
 	t.ch <- msg
-}
-
-func (s *service) Close() {
-	s.ec.Close()
 }
