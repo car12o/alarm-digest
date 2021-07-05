@@ -10,8 +10,6 @@ services:
       - PORT=3000
       - REDIS_ADDR=redis:6379
       - NATS_URL=nats://nats:4222
-    ports:
-      - 3000:3000
     volumes:
       - .:/go/src/server
 

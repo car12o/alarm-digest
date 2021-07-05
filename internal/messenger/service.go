@@ -46,8 +46,8 @@ func (t *topicAlarmStatusChanged) Subscribe(handler func(msg AlarmStatusChanged)
 	}
 
 	go func(ch chan AlarmStatusChanged) {
-		for {
-			handler(<-ch)
+		for msg := range ch {
+			handler(msg)
 		}
 	}(t.ch)
 
@@ -88,8 +88,8 @@ func (t *topicSendAlarmDigest) Subscribe(handler func(msg SendAlarmDigest)) erro
 	}
 
 	go func(ch chan SendAlarmDigest) {
-		for {
-			handler(<-ch)
+		for msg := range ch {
+			handler(msg)
 		}
 	}(t.ch)
 

@@ -34,7 +34,7 @@ func main() {
 	defer app.Close()
 
 	addr := fmt.Sprintf("%s:%d", cfg.host, cfg.port)
-	app.Logger.Info(fmt.Sprintf("Serving netdata-digest at %s", addr))
+	app.Log.Info(fmt.Sprintf("Serving netdata-digest at %s", addr))
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		panic(err)
 	}

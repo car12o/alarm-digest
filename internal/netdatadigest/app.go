@@ -11,7 +11,7 @@ import (
 )
 
 type App struct {
-	Logger    logger.Service
+	Log       logger.Service
 	RedisConn *redis.Client
 	NatsConn  *nats.EncodedConn
 }
@@ -33,10 +33,15 @@ func NewApp(redisAddr string, natsUrl string) (*App, error) {
 	}
 	log.Info("Successfully connected to NATS server")
 
-	if err := alarm.NewService(
-		// "",
+	alarmService := alarm.NewService(
+		alarm.NewRepository(rc),
 		messenger.NewService(nc),
-	).SubscribeTopics(); err != nil {
+		log,
+	)
+	if err := alarmService.TopicsSubscribe(); err != nil {
+		return nil, err
+	}
+	if err := alarmService.TopicsInitPublishers(); err != nil {
 		return nil, err
 	}
 

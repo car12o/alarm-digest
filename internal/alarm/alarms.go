@@ -3,7 +3,8 @@ package alarm
 import "time"
 
 type Service interface {
-	SubscribeTopics() error
+	TopicsSubscribe() error
+	TopicsInitPublishers() error
 }
 
 type Alarm struct {
@@ -15,6 +16,7 @@ type Alarm struct {
 
 type Repository interface {
 	Store(alarm Alarm) error
-	GetByID(userID string, ID string) (Alarm, error)
-	GetByUserID(userID string) ([]Alarm, error)
+	GetByID(userID string, ID string) (*Alarm, error)
+	GetByUserID(userID string) ([]*Alarm, error)
+	DeleteByID(userID string, ID ...string) error
 }

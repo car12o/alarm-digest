@@ -35,7 +35,7 @@ type SendAlarmDigest struct {
 
 type AlarmDigest struct {
 	UserID       string
-	ActiveAlarms []ActiveAlarm
+	ActiveAlarms []*ActiveAlarm
 }
 
 type ActiveAlarm struct {
