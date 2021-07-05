@@ -42,10 +42,11 @@ func NewService(url string, log logger.Service) (Service, error) {
 }
 
 type topicAlarmStatusChanged struct {
-	ec    *nats.EncodedConn
-	topic string
-	queue string
-	ch    chan AlarmStatusChanged
+	ec           *nats.EncodedConn
+	subscription *nats.Subscription
+	topic        string
+	queue        string
+	ch           chan AlarmStatusChanged
 }
 
 func (s *service) TopicAlarmStatusChanged() TopicAlarmStatusChanged {
@@ -65,9 +66,9 @@ func (t *topicAlarmStatusChanged) Subscribe(handler func(msg AlarmStatusChanged)
 
 	var err error
 	if t.queue != "" {
-		_, err = t.ec.BindRecvQueueChan(t.topic, t.queue, t.ch)
+		t.subscription, err = t.ec.BindRecvQueueChan(t.topic, t.queue, t.ch)
 	} else {
-		_, err = t.ec.BindRecvChan(t.topic, t.ch)
+		t.subscription, err = t.ec.BindRecvChan(t.topic, t.ch)
 	}
 	if err != nil {
 		return err
@@ -83,10 +84,11 @@ func (t *topicAlarmStatusChanged) Subscribe(handler func(msg AlarmStatusChanged)
 }
 
 type topicSendAlarmDigest struct {
-	ec    *nats.EncodedConn
-	topic string
-	queue string
-	ch    chan SendAlarmDigest
+	ec           *nats.EncodedConn
+	subscription *nats.Subscription
+	topic        string
+	queue        string
+	ch           chan SendAlarmDigest
 }
 
 func (s *service) TopicSendAlarmDigest() TopicSendAlarmDigest {
@@ -106,9 +108,9 @@ func (t *topicSendAlarmDigest) Subscribe(handler func(msg SendAlarmDigest)) erro
 
 	var err error
 	if t.queue != "" {
-		_, err = t.ec.BindRecvQueueChan(t.topic, t.queue, t.ch)
+		t.subscription, err = t.ec.BindRecvQueueChan(t.topic, t.queue, t.ch)
 	} else {
-		_, err = t.ec.BindRecvChan(t.topic, t.ch)
+		t.subscription, err = t.ec.BindRecvChan(t.topic, t.ch)
 	}
 	if err != nil {
 		return err
@@ -123,14 +125,29 @@ func (t *topicSendAlarmDigest) Subscribe(handler func(msg SendAlarmDigest)) erro
 	return nil
 }
 
-// type topicAlarmDigest struct {
-// 	topic string
-// 	ch    chan AlarmDigest
-// }
+type topicAlarmDigest struct {
+	ec    *nats.EncodedConn
+	topic string
+	ch    chan AlarmDigest
+}
 
-// func (s *service) TopicAlarmDigest() TopicAlarmDigest {
+func (s *service) TopicAlarmDigest() (TopicAlarmDigest, error) {
+	t := &topicAlarmDigest{
+		ec:    s.ec,
+		topic: "AlarmDigest",
+		ch:    make(chan AlarmDigest),
+	}
 
-// }
+	if err := t.ec.BindSendChan(t.topic, t.ch); err != nil {
+		return nil, err
+	}
+
+	return t, nil
+}
+
+func (t *topicAlarmDigest) Publish(msg AlarmDigest) {
+	t.ch <- msg
+}
 
 func (s *service) Close() {
 	s.ec.Close()

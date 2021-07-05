@@ -5,7 +5,7 @@ import "time"
 type Service interface {
 	TopicAlarmStatusChanged() TopicAlarmStatusChanged
 	TopicSendAlarmDigest() TopicSendAlarmDigest
-	// TopicAlarmDigest() TopicAlarmDigest
+	TopicAlarmDigest() (TopicAlarmDigest, error)
 	Close()
 }
 
@@ -20,7 +20,7 @@ type TopicSendAlarmDigest interface {
 }
 
 type TopicAlarmDigest interface {
-	Publish(msg AlarmDigest) error
+	Publish(msg AlarmDigest)
 }
 
 type AlarmStatusChanged struct {
