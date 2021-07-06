@@ -7,5 +7,14 @@ serve: install.devdeps
 install.devdeps:
 	@GO111MODULE=off go get -v github.com/cosmtrek/air
 
+verify:
+	@docker exec -it netdata-digest_nats_1 verify
+
 test:
 	@go test ./...
+
+e2e.serve:
+	@docker-compose up --scale server=3
+
+e2e.test:
+	@go test ./test/...

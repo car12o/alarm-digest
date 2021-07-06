@@ -1,6 +1,7 @@
 package alarm
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/car12o/netdata-digest/internal/messenger"
@@ -55,6 +56,8 @@ func (s *service) TopicsInitPublishers() error {
 }
 
 func (s *service) topicAlarmStatusChangedHandler(msg messenger.AlarmStatusChanged) {
+	s.log.Debug(fmt.Sprintf("topicAlarmStatusChangedHandler: %v", msg))
+
 	// Since CLEARED status is a non active status I'm simply discarding it.
 	// It was not clear for me if this is the intended behavior or if it was to clear any
 	// previous record for the specified alarmID.
@@ -84,6 +87,8 @@ func (s *service) topicAlarmStatusChangedHandler(msg messenger.AlarmStatusChange
 }
 
 func (s *service) topicSendAlarmDigestHandler(msg messenger.SendAlarmDigest) {
+	s.log.Debug(fmt.Sprintf("topicSendAlarmDigestHandler: %v", msg))
+
 	alarms, err := s.repository.GetByUserID(msg.UserID)
 	if err != nil {
 		s.log.Error(errors.Wrap(err, "error fetching all alarms"))
