@@ -6,3 +6,6 @@ serve: install.devdeps
 
 install.devdeps:
 	@GO111MODULE=off go get -v github.com/cosmtrek/air
+
+test:
+	@go test ./...

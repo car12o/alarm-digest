@@ -55,6 +55,11 @@ func (s *service) TopicsInitPublishers() error {
 }
 
 func (s *service) topicAlarmStatusChangedHandler(msg messenger.AlarmStatusChanged) {
+	// Since CLEARED status is a non active status I'm simply discarding it.
+	// It was not clear for me if this is the intended behavior or if it was to clear any
+	// previous record for the specified alarmID.
+	// However, change this to the clear logic would be just a matter of calling:
+	// s.repository.DeleteByID(msg.UserID, msg.AlarmID)
 	if msg.Status == StatusCleared {
 		return
 	}
@@ -64,7 +69,6 @@ func (s *service) topicAlarmStatusChangedHandler(msg messenger.AlarmStatusChange
 		s.log.Error(errors.Wrap(err, "error fetching alarm"))
 		return
 	}
-
 	if alarm != nil && alarm.ChangedAt.After(msg.ChangedAt) {
 		return
 	}
@@ -83,6 +87,9 @@ func (s *service) topicSendAlarmDigestHandler(msg messenger.SendAlarmDigest) {
 	alarms, err := s.repository.GetByUserID(msg.UserID)
 	if err != nil {
 		s.log.Error(errors.Wrap(err, "error fetching all alarms"))
+		return
+	}
+	if len(alarms) == 0 {
 		return
 	}
 
@@ -108,5 +115,7 @@ func (s *service) topicSendAlarmDigestHandler(msg messenger.SendAlarmDigest) {
 		},
 	)
 
-	s.repository.DeleteByID(msg.UserID, alarmsToRemove...)
+	if err := s.repository.DeleteByID(msg.UserID, alarmsToRemove...); err != nil {
+		s.log.Error(errors.Wrap(err, "error deleting alarms"))
+	}
 }
