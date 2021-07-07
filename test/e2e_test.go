@@ -21,21 +21,21 @@ type config struct {
 	nc      *nats.EncodedConn
 }
 
-var cfg config
+var c config
 
 func init() {
-	flag.StringVar(&cfg.natsUrl, "nats-url", nats.DefaultURL, "Nats URL")
+	flag.StringVar(&c.natsUrl, "nats-url", nats.DefaultURL, "Nats URL")
 }
 
 func setup() error {
 	var err error
 	flag.Parse()
-	cfg.nc, err = broker.NewNats(cfg.natsUrl, &logger.MockService{})
+	c.nc, err = broker.NewNats(c.natsUrl, &logger.MockService{})
 	return err
 }
 
 func shutdown() {
-	cfg.nc.Close()
+	c.nc.Close()
 }
 
 func TestMain(m *testing.M) {
@@ -49,7 +49,7 @@ func TestMain(m *testing.M) {
 
 func TestOrderDelivery(t *testing.T) {
 	ch := make(chan *messenger.AlarmDigest)
-	ns, err := cfg.nc.BindRecvChan("AlarmDigest", ch)
+	ns, err := c.nc.BindRecvChan("AlarmDigest", ch)
 	require.Nil(t, err)
 	defer ns.Unsubscribe()
 
@@ -114,12 +114,12 @@ func TestOrderDelivery(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(alarms), func(i, j int) { alarms[i], alarms[j] = alarms[j], alarms[i] })
 	for _, alarm := range alarms {
-		err = cfg.nc.Publish("AlarmStatusChanged", alarm)
+		err = c.nc.Publish("AlarmStatusChanged", alarm)
 		require.Nil(t, err)
 		time.Sleep(time.Millisecond * 1)
 	}
 
-	err = cfg.nc.Publish("SendAlarmDigest", &messenger.SendAlarmDigest{UserID: "userID-1"})
+	err = c.nc.Publish("SendAlarmDigest", &messenger.SendAlarmDigest{UserID: "userID-1"})
 	require.Nil(t, err)
 
 	msg := <-ch
@@ -132,7 +132,7 @@ func TestOrderDelivery(t *testing.T) {
 	assert.Equal(t, expected[1].Status, msg.ActiveAlarms[1].Status)
 	assert.True(t, expected[1].ChangedAt.Equal(msg.ActiveAlarms[1].LatestChangedAt))
 
-	err = cfg.nc.Publish("SendAlarmDigest", &messenger.SendAlarmDigest{UserID: "userID-2"})
+	err = c.nc.Publish("SendAlarmDigest", &messenger.SendAlarmDigest{UserID: "userID-2"})
 	require.Nil(t, err)
 
 	msg = <-ch
@@ -145,12 +145,46 @@ func TestOrderDelivery(t *testing.T) {
 
 func TestNoAlarmsToDigest(t *testing.T) {
 	ch := make(chan *messenger.AlarmDigest)
-	ns, err := cfg.nc.BindRecvChan("AlarmDigest", ch)
+	ns, err := c.nc.BindRecvChan("AlarmDigest", ch)
 	require.Nil(t, err)
 	defer ns.Unsubscribe()
 
-	err = cfg.nc.Publish("SendAlarmDigest", &messenger.SendAlarmDigest{UserID: "userID"})
+	err = c.nc.Publish("SendAlarmDigest", &messenger.SendAlarmDigest{UserID: "userID"})
 	require.Nil(t, err)
+
+	select {
+	case msg := <-ch:
+		assert.Fail(t, "channel should be empty", msg)
+	default:
+	}
+}
+
+func TestHorizontalScale(t *testing.T) {
+	ch := make(chan *messenger.AlarmDigest)
+	ns, err := c.nc.BindRecvChan("AlarmDigest", ch)
+	require.Nil(t, err)
+	defer ns.Unsubscribe()
+
+	alm := &messenger.AlarmStatusChanged{
+		AlarmID:   "alarmID",
+		UserID:    "userID",
+		Status:    alarm.StatusWarning,
+		ChangedAt: time.Now(),
+	}
+
+	err = c.nc.Publish("AlarmStatusChanged", alm)
+	require.Nil(t, err)
+	time.Sleep(time.Millisecond * 1)
+
+	err = c.nc.Publish("SendAlarmDigest", &messenger.SendAlarmDigest{UserID: alm.UserID})
+	require.Nil(t, err)
+
+	msg := <-ch
+	assert.Equal(t, msg.UserID, alm.UserID)
+	assert.Len(t, msg.ActiveAlarms, 1)
+	assert.Equal(t, alm.AlarmID, msg.ActiveAlarms[0].AlarmID)
+	assert.Equal(t, alm.Status, msg.ActiveAlarms[0].Status)
+	assert.True(t, alm.ChangedAt.Equal(msg.ActiveAlarms[0].LatestChangedAt))
 
 	select {
 	case msg := <-ch:
