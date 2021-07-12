@@ -3,7 +3,7 @@ package broker
 import (
 	"time"
 
-	"github.com/car12o/netdata-digest/pkg/logger"
+	"github.com/car12o/alarm-digest/pkg/logger"
 	"github.com/nats-io/nats.go"
 	"github.com/pkg/errors"
 )

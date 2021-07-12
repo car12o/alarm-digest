@@ -8,10 +8,11 @@ install.devdeps:
 	@GO111MODULE=off go get -v github.com/cosmtrek/air
 
 verify:
-	@docker exec -it netdata-digest_nats_1 verify
+	@docker exec -it alarm-digest_nats_1 verify
 
+.PHONY: test
 test:
-	@go test ./...
+	@go test ./internal/...
 
 e2e.serve:
 	@docker-compose up --scale server=3

@@ -20,7 +20,7 @@ services:
     ports:
       - 6379:6379
     volumes:
-      - netdatadigest_redis:/data
+      - alarmdigest_redis:/data
 
   nats:
     image: docker.io/lvrach/be-challenge:latest
@@ -29,4 +29,4 @@ services:
       - 4222:4222
 
 volumes:
-  netdatadigest_redis:
+  alarmdigest_redis:

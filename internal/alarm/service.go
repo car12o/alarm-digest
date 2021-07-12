@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/car12o/netdata-digest/internal/messenger"
-	"github.com/car12o/netdata-digest/pkg/logger"
+	"github.com/car12o/alarm-digest/internal/messenger"
+	"github.com/car12o/alarm-digest/pkg/logger"
 	"github.com/pkg/errors"
 )
 
@@ -13,7 +13,7 @@ const (
 	StatusCleared  = "CLEARED"
 	StatusWarning  = "WARNING"
 	StatusCritical = "CRITICAL"
-	queue          = "netdata-digest"
+	queue          = "alarm-digest"
 )
 
 type service struct {

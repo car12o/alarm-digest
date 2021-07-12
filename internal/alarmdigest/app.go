@@ -1,11 +1,11 @@
-package netdatadigest
+package alarmdigest
 
 import (
-	"github.com/car12o/netdata-digest/internal/alarm"
-	"github.com/car12o/netdata-digest/internal/broker"
-	"github.com/car12o/netdata-digest/internal/messenger"
-	"github.com/car12o/netdata-digest/internal/storage"
-	"github.com/car12o/netdata-digest/pkg/logger"
+	"github.com/car12o/alarm-digest/internal/alarm"
+	"github.com/car12o/alarm-digest/internal/broker"
+	"github.com/car12o/alarm-digest/internal/messenger"
+	"github.com/car12o/alarm-digest/internal/storage"
+	"github.com/car12o/alarm-digest/pkg/logger"
 	"github.com/go-redis/redis/v8"
 	"github.com/nats-io/nats.go"
 )

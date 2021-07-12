@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/car12o/netdata-digest/internal/netdatadigest"
+	"github.com/car12o/alarm-digest/internal/alarmdigest"
 	"github.com/nats-io/nats.go"
 )
 
@@ -27,14 +27,14 @@ func init() {
 }
 
 func main() {
-	app, err := netdatadigest.NewApp(cfg.redisAddr, cfg.natsUrl)
+	app, err := alarmdigest.NewApp(cfg.redisAddr, cfg.natsUrl)
 	if err != nil {
 		panic(err)
 	}
 	defer app.Close()
 
 	addr := fmt.Sprintf("%s:%d", cfg.host, cfg.port)
-	app.Log.Info(fmt.Sprintf("Serving netdata-digest at %s", addr))
+	app.Log.Info(fmt.Sprintf("Serving alarm-digest at %s", addr))
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		panic(err)
 	}

@@ -1,4 +1,4 @@
-module github.com/car12o/netdata-digest
+module github.com/car12o/alarm-digest
 
 go 1.16
 

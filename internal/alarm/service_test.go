@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/car12o/netdata-digest/internal/messenger"
-	"github.com/car12o/netdata-digest/pkg/logger"
+	"github.com/car12o/alarm-digest/internal/messenger"
+	"github.com/car12o/alarm-digest/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -58,7 +58,10 @@ func TestTopicAlarmStatusChangedHandler(t *testing.T) {
 		repository.On("GetByID", msg.UserID, msg.AlarmID).Return(nil, nil)
 		repository.On("Store", mock.Anything).Return(nil)
 
-		s := service{repository: repository}
+		log := new(logger.MockService)
+		log.On("Debug", mock.Anything, mock.Anything)
+
+		s := service{repository: repository, log: log}
 		s.topicAlarmStatusChangedHandler(msg)
 
 		repository.AssertNumberOfCalls(t, "GetByID", 1)
@@ -91,7 +94,10 @@ func TestTopicAlarmStatusChangedHandler(t *testing.T) {
 		)
 		repository.On("Store", mock.Anything).Return(nil)
 
-		s := service{repository: repository}
+		log := new(logger.MockService)
+		log.On("Debug", mock.Anything, mock.Anything)
+
+		s := service{repository: repository, log: log}
 		s.topicAlarmStatusChangedHandler(msg)
 
 		repository.AssertNumberOfCalls(t, "GetByID", 1)
@@ -124,7 +130,10 @@ func TestTopicAlarmStatusChangedHandler(t *testing.T) {
 		)
 		repository.On("Store", mock.Anything).Return(nil)
 
-		s := service{repository: repository}
+		log := new(logger.MockService)
+		log.On("Debug", mock.Anything, mock.Anything)
+
+		s := service{repository: repository, log: log}
 		s.topicAlarmStatusChangedHandler(msg)
 
 		repository.AssertNumberOfCalls(t, "GetByID", 1)
@@ -143,7 +152,10 @@ func TestTopicAlarmStatusChangedHandler(t *testing.T) {
 		repository.On("GetByID", msg.UserID, msg.AlarmID).Return(nil, nil)
 		repository.On("Store", mock.Anything).Return(nil)
 
-		s := service{repository: repository}
+		log := new(logger.MockService)
+		log.On("Debug", mock.Anything, mock.Anything)
+
+		s := service{repository: repository, log: log}
 		s.topicAlarmStatusChangedHandler(msg)
 
 		repository.AssertNotCalled(t, "GetByID")
@@ -186,11 +198,15 @@ func TestTopicSendAlarmDigestHandler(t *testing.T) {
 		topicAlarmDigest := new(messenger.MockTopicAlarmDigest)
 		topicAlarmDigest.On("Publish", mock.Anything)
 
+		log := new(logger.MockService)
+		log.On("Debug", mock.Anything, mock.Anything)
+
 		s := service{
 			repository: repository,
 			publishers: struct{ alarmDigest messenger.TopicAlarmDigest }{
 				alarmDigest: topicAlarmDigest,
 			},
+			log: log,
 		}
 		s.topicSendAlarmDigestHandler(msg)
 
@@ -232,11 +248,15 @@ func TestTopicSendAlarmDigestHandler(t *testing.T) {
 		topicAlarmDigest := new(messenger.MockTopicAlarmDigest)
 		topicAlarmDigest.On("Publish", mock.Anything)
 
+		log := new(logger.MockService)
+		log.On("Debug", mock.Anything, mock.Anything)
+
 		s := service{
 			repository: repository,
 			publishers: struct{ alarmDigest messenger.TopicAlarmDigest }{
 				alarmDigest: topicAlarmDigest,
 			},
+			log: log,
 		}
 		s.topicSendAlarmDigestHandler(msg)
 
