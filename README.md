@@ -1,4 +1,4 @@
-# netdata digest service
+# alarm digest service
 
 ## Requirements
 ### Dockerized
@@ -28,7 +28,7 @@ make verify
 ```
 ```sh
 # run end to end tests
-# terminal 1 - start services scaling netdata-digest service to 3 nodes
+# terminal 1 - start services scaling alarm-digest service to 3 nodes
 make e2e.serve
 # terminal 2 - run end to end tests
 make e2e.test
